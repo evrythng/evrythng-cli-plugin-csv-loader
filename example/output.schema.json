@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "required": [
+    "brand",
+    "identifiers",
+    "photos",
+    "tags"
+  ],
+  "properties": {
+    "brand": {
+      "type": "string",
+      "enum": [
+        "Puma"
+      ]
+    },
+    "identifiers": {
+      "required": [
+        "gs1:01"
+      ],
+      "properties": {
+        "gs1:01": {
+          "type": "string",
+          "minLength": 14,
+          "maxLength": 14
+        }
+      }
+    },
+    "photos": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

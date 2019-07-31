@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "required": [
+    "Brand",
+    "SkuName",
+    "ProductCode",
+    "ManufactureDate",
+    "BatchId",
+    "PhotoUrl"
+  ],
+  "properties": {
+    "Brand": {
+      "type": "string"
+    },
+    "SkuName": {
+      "type": "string"
+    },
+    "ProductCode": {
+      "type": "string",
+      "minLength": 12,
+      "maxLength": 14
+    },
+    "ManufactureDate": {
+      "type": "string",
+      "minLength": 6,
+      "maxLength": 6
+    },
+    "BatchId": {
+      "type": "string"
+    },
+    "PhotoUrl": {
+      "type": "string"
+    }
+  }
+}
