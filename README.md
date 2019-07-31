@@ -1,8 +1,12 @@
 # pmd-loader
 
-A generic configurable CSV => EVRYTHNG resource loading script. Input and output
-validation with JSONSchema is performed, upsert by nominated key to EVRYTHNG is
-done with a retry mechanism.
+Script to read, validate, and upsert resources from a CSV file.
+
+* Read CSV file
+* Validate columns with JSON Schema
+* Map to EVRYTHNG resources
+* Validate resources with JSON Schema
+* Create resources, or update by a nominated key if they exist
 
 
 ## Setup
