@@ -1,22 +1,61 @@
-# pmd-loader
+# evrythng-cli-plugin-pmd-loader
 
-Script to read, validate, and upsert resources from a CSV file.
+EVRYTHNG CLI plugin to upsert resources from a CSV file. Each use of the `load`
+command performs the following:
 
-* Read CSV file
-* Validate columns with JSON Schema
-* Map to EVRYTHNG resources
-* Validate resources with JSON Schema
-* Create resources, or update by a nominated key if they exist
-
-
-## Setup
-
-1. `npm i`
-2. `export OPERATOR_API_KEY=...` with the account Operator API Key.
-3. Create a directory for the client/project and proceed to _Configuration_.
+* Read the input data CSV file.
+* Validate columns match the input JSON Schema.
+* Map each CSV record to an EVRYTHNG resource using the mapping file.
+* Validate output resources with JSON Schema before they are created.
+* Create resources, or update by a nominated key if they already exist.
 
 
-## Configuration
+## Installation
+
+Install alongside [`evrythng-cli`](https://github.com/evrythng/evrythng-cli),
+usually globally:
+
+```bash
+$ npm i -g evrythng-cli-plugin-pmd-loader
+```
+
+
+## Usage
+
+Initialise a set of example files:
+
+```bash
+$ evrythng pmd-loader init
+```
+
+Load data from some CSV file using a set of config files:
+
+```bash
+$ evrythng pmd-loader load $configPath $csvPath
+```
+
+
+## Quick Start
+
+To start quickly, use the `init` command to generate a set of example files to
+modify for your particular data set:
+
+```bash
+$ evrythng pmd-loader init
+```
+
+This will create a directoty `pmd-loader-config` containing:
+
+* `config.json` - Example config file (see below for format)
+* `input.schema.json` - Example JSON Schema file describing the expected format
+  of the input data CSV file.
+* `output.schema.json` - Example JSON Schema file describing the expected format
+  of the output EVRYTHNG resources.
+* `mapping.json` - Example JSON file describing how to map each CSV field to a
+  field on the EVRYTHNG resource (see below for format)
+
+
+## Configuration Format
 
 A configuration file is used to specify all other relevant files. Strict schemas
 and exhaustive mapping can help ensure data integrity.
@@ -56,6 +95,14 @@ An example configuration is shown below:
 }
 ```
 
+
+## Mapping Format
+
+The `mapping.json` file describes how to map each field in a CSV record from its
+header name to the EVRYTHNG resource field name. Array fields (i.e: `tags`) and
+sub-objects (i.e: `identifiers` or `customFields`) are suported with square
+bracket and dot notation respectively.
+
 An example mapping file is shown below:
 
 ```json
@@ -70,18 +117,8 @@ An example mapping file is shown below:
 ```
 
 
-## Loading Data
-
-Load data from the `input.data` CSV file once all other configuration is in
-place:
-
-```
-npm start $configFile
-````
-
-Where `$configFile` is the path to the configuration file.
-
-
 ## Tests
+
+Run unit tests using `mocha`:
 
 `npm test`
