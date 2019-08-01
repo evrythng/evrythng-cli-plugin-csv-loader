@@ -63,15 +63,15 @@ and exhaustive mapping can help ensure data integrity.
 * `input`
   * `schema` - JSONSchema for CSV records after they are read.
 * `output`
-  * `type` - Type of EVRYTHNG resource to create.
-  * `projectName` - Name of the EVRYTHNG project to use.
   * `schema` - JSONSchema for each processed EVRYTHNG resource before it is
     created.
-  * `updateKey` - Either `name` or some `identifiers` key to be used for
-    updates.
   * `mapping` - JSON file that maps CSV column headers to EVRYTHNG resource
     fild names. Custom fields and identifiers are also supported with dot
     notation.
+  * `type` - Type of EVRYTHNG resource to create.
+  * `updateKey` - Either `name` or some `identifiers` key to be used for
+    updates.
+  * `projectName` - Name of the EVRYTHNG project to use.
 * `statsFile` - Path to a file to write stats and errors.
 
 
@@ -83,11 +83,11 @@ An example configuration is shown below:
     "schema": "./example/input.schema.json"
   },
   "output": {
-    "type": "product",
-    "projectName": "Example PoC",
     "schema": "./example/output.schema.json",
+    "mapping": "./example/mapping.json",
+    "type": "product",
     "updateKey": "gs1:01",
-    "mapping": "./example/mapping.json"
+    "projectName": "Example PoC"
   },
   "statsFile": "./errors.txt"
 }

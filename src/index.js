@@ -16,11 +16,11 @@ const EXAMPLE_CONFIG = {
     schema: `./${EXAMPLE_CONFIG_DIR}/input.schema.json`,
   },
   output: {
-    type: 'product',
-    projectName: '',
     schema: `./${EXAMPLE_CONFIG_DIR}/output.schema.json`,
-    updateKey: 'name',
     mapping: `./${EXAMPLE_CONFIG_DIR}/mapping.json`,
+    type: 'product',
+    updateKey: 'name',
+    projectName: '',
   },
 };
 /** Example input schema */
