@@ -44,7 +44,7 @@ modify for your particular data set:
 $ evrythng pmd-loader init
 ```
 
-This will create a directoty `pmd-loader-config` containing:
+This will create a directory `pmd-loader-config` containing:
 
 * `config.json` - Example config file (see below for format)
 * `input.schema.json` - Example JSON Schema file describing the expected format
@@ -61,7 +61,6 @@ A configuration file is used to specify all other relevant files. Strict schemas
 and exhaustive mapping can help ensure data integrity.
 
 * `input`
-  * `data` - Input data CSV file.
   * `schema` - JSONSchema for CSV records after they are read.
 * `output`
   * `type` - Type of EVRYTHNG resource to create.
@@ -81,7 +80,6 @@ An example configuration is shown below:
 ```json
 {
   "input": {
-    "data": "./example/shoe-data.csv",
     "schema": "./example/input.schema.json"
   },
   "output": {
