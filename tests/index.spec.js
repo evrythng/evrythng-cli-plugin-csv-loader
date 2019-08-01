@@ -1,4 +1,5 @@
 const { expect } = require('chai');
+const evrythng = require('evrythng');
 const nock = require('nock');
 const mapper = require('../src/modules/mapper');
 const platform = require('../src/modules/platform');
@@ -217,12 +218,7 @@ object3,the third object,270819`;
           actor: { id: 'foo' },
         });
 
-      process.env.OPERATOR_API_KEY = 'foo';
-      operator = await platform.loadOperator(process.env.OPERATOR_API_KEY);
-    });
-
-    it('should load an Operator', async () => {
-      expect(operator.actor.id).to.equal('foo');
+      operator = new evrythng.Operator('foo');
     });
 
     it('should load the project', async () => {
