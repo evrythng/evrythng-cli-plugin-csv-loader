@@ -2,3 +2,4 @@ node_modules
 ./*.txt
 .DS_Store
 reports
+pmd-loader-config

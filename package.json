@@ -1,13 +1,13 @@
 {
-  "name": "pmd-loader",
+  "name": "evrythng-cli-plugin-pmd-loader",
   "version": "1.0.0",
-  "description": "A generic CSV to EVRYTHNG resource loading script.",
+  "description": "EVRYTHNG CLI plugin to upsert resources from a CSV file.",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js",
     "test": "nyc mocha tests/index.spec.js && rm -rf .nyc_output"
   },
   "author": "EVRYTHNG",
+  "license": "Apache-2.0",
   "devDependencies": {
     "chai": "^4.2.0",
     "mocha": "^6.2.0",

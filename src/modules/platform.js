@@ -1,20 +1,8 @@
-const evrythng = require('evrythng');
 const retry = require('p-retry');
 const stats = require('./stats');
 const util = require('./util');
 
 const BATCH_SIZE = 10;
-
-/**
- * Load the EVRYTHNG Operator scope.
- *
- * @returns {object} Initialised Operator scope.
- */
-const loadOperator = async (apiKey) => {
-  operator = new evrythng.Operator(apiKey);
-  await operator.init();
-  return operator;
-};
 
 /**
  * Load the EVRYTHNG project, creating if neccessary.
@@ -93,7 +81,6 @@ const upsertAllResources = async (operator, config, resources, project, outputSc
 };
 
 module.exports = {
-  loadOperator,
   loadProject,
   upsertResource,
   upsertAllResources,
