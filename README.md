@@ -66,8 +66,8 @@ and exhaustive mapping can help ensure data integrity.
   * `schema` - JSONSchema for each processed EVRYTHNG resource before it is
     created.
   * `mapping` - JSON file that maps CSV column headers to EVRYTHNG resource
-    fild names. Custom fields and identifiers are also supported with dot
-    notation.
+    field names. Sub-objects and arrays are also supported with dot and square
+    bracket notation respectively.
   * `type` - Type of EVRYTHNG resource to create.
   * `updateKey` - Either `name` or some `identifiers` key to be used for
     updates.
