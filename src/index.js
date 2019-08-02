@@ -9,7 +9,7 @@ const mapper = require('./modules/mapper');
 /** Schema for config files */
 const CONFIG_SCHEMA = require(`${__dirname}/schema/config.schema.json`);
 /** Example config file directory when using 'init' */
-const EXAMPLE_CONFIG_DIR = 'pmd-loader-config';
+const EXAMPLE_CONFIG_DIR = 'csv-loader-config';
 /** Example config file */
 const EXAMPLE_CONFIG = {
   input: {
@@ -177,7 +177,7 @@ module.exports = (api) => {
 
   const newCommand = {
     about: 'Validate, map, create, and update resources from a CSV file.',
-    firstArg: 'pmd-loader',
+    firstArg: 'csv-loader',
     operations: {
       init: {
         execute: async () => writeExampleFiles(),

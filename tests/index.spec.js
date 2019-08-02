@@ -8,7 +8,7 @@ const util = require('../src/modules/util');
 
 const mockApi = () => nock('https://api.evrythng.com');
 
-describe('pmd-loader', () => {
+describe('csv-loader', () => {
   describe('stats.js', () => {
     it('should export the stats object', async () => {
       expect(stats.success).to.be.a('number');

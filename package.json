@@ -1,5 +1,5 @@
 {
-  "name": "evrythng-cli-plugin-pmd-loader",
+  "name": "evrythng-cli-plugin-csv-loader",
   "version": "1.0.0",
   "description": "EVRYTHNG CLI plugin to upsert resources from a CSV file.",
   "main": "src/index.js",

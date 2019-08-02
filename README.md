@@ -1,4 +1,4 @@
-# evrythng-cli-plugin-pmd-loader
+# evrythng-cli-plugin-csv-loader
 
 EVRYTHNG CLI plugin to upsert resources from a CSV file. Each use of the `load`
 command performs the following:
@@ -16,7 +16,7 @@ Install alongside [`evrythng-cli`](https://github.com/evrythng/evrythng-cli),
 usually globally:
 
 ```bash
-$ npm i -g evrythng-cli-plugin-pmd-loader
+$ npm i -g evrythng-cli-plugin-csv-loader
 ```
 
 
@@ -25,13 +25,13 @@ $ npm i -g evrythng-cli-plugin-pmd-loader
 Initialise a set of example files:
 
 ```bash
-$ evrythng pmd-loader init
+$ evrythng csv-loader init
 ```
 
 Load data from some CSV file using a set of config files:
 
 ```bash
-$ evrythng pmd-loader load $configPath $csvPath
+$ evrythng csv-loader load $configPath $csvPath
 ```
 
 
@@ -41,10 +41,10 @@ To start quickly, use the `init` command to generate a set of example files to
 modify for your particular data set:
 
 ```bash
-$ evrythng pmd-loader init
+$ evrythng csv-loader init
 ```
 
-This will create a directory `pmd-loader-config` containing:
+This will create a directory `csv-loader-config` containing:
 
 * `config.json` - Example config file (see below for format)
 * `input.schema.json` - Example JSON Schema file describing the expected format
