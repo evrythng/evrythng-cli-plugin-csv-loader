@@ -1,6 +1,5 @@
 {
   "input": {
-    "data": "./example-config/shoe-data.csv",
     "schema": "./example-config/input.schema.json"
   },
   "output": {

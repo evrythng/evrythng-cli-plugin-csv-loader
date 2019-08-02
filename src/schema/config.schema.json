@@ -10,13 +10,9 @@
     "input": {
       "additionalProperties": false,
       "required": [
-        "data",
         "schema"
       ],
       "properties": {
-        "data": {
-          "type": "string"
-        },
         "schema": {
           "type": "string"
         }
