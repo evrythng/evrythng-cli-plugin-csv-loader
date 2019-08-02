@@ -80,11 +80,11 @@ An example configuration is shown below:
 ```json
 {
   "input": {
-    "schema": "./example/input.schema.json"
+    "schema": "./example-config/input.schema.json"
   },
   "output": {
-    "schema": "./example/output.schema.json",
-    "mapping": "./example/mapping.json",
+    "schema": "./example-config/output.schema.json",
+    "mapping": "./example-config/mapping.json",
     "type": "product",
     "updateKey": "gs1:01",
     "projectName": "Example PoC"
