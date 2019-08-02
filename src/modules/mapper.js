@@ -10,8 +10,13 @@ const mapRecordToResource = (record, mapping) => {
   // CSV records are flat objects
   Object.entries(record).forEach(([key, value]) => {
     // All CSV headings must be catered for
-    if (!mapping[key]) {
+    if (mapping[key] === undefined) {
       throw new Error(`No mapping specified for ${key}`);
+    }
+
+    // But they can be omitted by being left blank
+    if (mapping[key].length === 0) {
+      return;
     }
 
     // Split 'customFields.foo' into ['customFields', 'foo']

@@ -110,9 +110,13 @@ An example mapping file is shown below:
   "ProductCode": "identifiers.gs1:01",
   "ManufactureDate": "customFields.ManufactureDate",
   "BatchId": "tags[0]",
-  "PhotoUrl": "photos[0]"
+  "PhotoUrl": "photos[0]",
+  "SecretCode": ""
 }
 ```
+
+All CSV column headers must be accounted for, but they can be skipped by leaving
+the mapped value as an empty string (like `SecretCode` shown above).
 
 
 ## Tests

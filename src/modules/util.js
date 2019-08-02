@@ -12,8 +12,7 @@ const neatCsv = require('neat-csv');
 const validate = (schema, instance, name) => {
   const res = jsonschema.validate(instance, schema);
   if (res.errors.length) {
-    const errStacks = res.errors.map(p => `- ${p.stack}`);
-    errStacks.forEach(p => console.log(p));
+    const errStacks = res.errors.map(p => `\n- ${p.stack}`);
     throw new Error(`Schema validation failed: ${name}\n${errStacks}`);
   }
 };
