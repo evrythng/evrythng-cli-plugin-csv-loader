@@ -43,7 +43,14 @@ const upsertResource = async (resource, config, operator, project, outputSchema)
 
     // Upsert
     const { type } = config.output;
-    const res = await retry(() => operator[type]().upsert(resource, updateKey));
+    const res = await retry(async () => {
+      try {
+        return operator[type]().upsert(resource, updateKey);
+      } catch (e) {
+        // Transform EVRYTHNG error object to native Error for p-retry
+        throw new Error(e);
+      }
+    });
 
     // Apply project scope
     const payload = { scopes: { projects: [`+${project.id}`] } };
