@@ -1,5 +1,4 @@
 const retry = require('p-retry');
-const stats = require('./stats');
 const util = require('./util');
 
 const BATCH_SIZE = 10;
@@ -29,12 +28,14 @@ const loadProject = async (operator, config) => {
  * @param {object} outputSchema - The output schema.
  */
 const upsertResource = async (resource, config, operator, project, outputSchema) => {
+  const { type, updateKey } = config.output;
+
   // Assume update by 'name'
-  let updateKey = resource.name;
+  let finalUpdateKey = resource.name;
 
   // If not, update by nominated identifiers key instead
-  if (config.output.updateKey !== 'name') {
-    updateKey = { [config.output.updateKey]: resource.identifiers[config.output.updateKey] };
+  if (updateKey !== 'name') {
+    finalUpdateKey = { [updateKey]: resource.identifiers[updateKey] };
   }
 
   try {
@@ -42,24 +43,20 @@ const upsertResource = async (resource, config, operator, project, outputSchema)
     util.validate(outputSchema, resource, resource.name);
 
     // Upsert
-    const { type } = config.output;
     const res = await retry(async () => {
       try {
-        return operator[type]().upsert(resource, updateKey);
+        const obj = await operator[type]().upsert(resource, finalUpdateKey);
+        return obj;
       } catch (e) {
-        // Transform EVRYTHNG error object to native Error for p-retry
-        throw new Error(e);
+        console.log(e);
+        throw new retry.AbortError(e);
       }
     });
 
     // Apply project scope
     const payload = { scopes: { projects: [`+${project.id}`] } };
     await retry(() => operator[type](res.id).update(payload));
-
-    stats.success += 1;
   } catch (e) {
-    stats.failed += 1;
-    stats.errors.push(e.message || e.errors[0]);
     console.log(e);
   }
 };

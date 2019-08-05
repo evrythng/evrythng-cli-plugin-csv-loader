@@ -3,20 +3,11 @@ const evrythng = require('evrythng');
 const nock = require('nock');
 const mapper = require('../src/modules/mapper');
 const platform = require('../src/modules/platform');
-const stats = require('../src/modules/stats');
 const util = require('../src/modules/util');
 
 const mockApi = () => nock('https://api.evrythng.com');
 
 describe('csv-loader', () => {
-  describe('stats.js', () => {
-    it('should export the stats object', async () => {
-      expect(stats.success).to.be.a('number');
-      expect(stats.failed).to.be.a('number');
-      expect(stats.errors).to.be.an('array');
-    });
-  });
-
   describe('util.js', () => {
     it('should validate against a schema', () => {
       const obj = {
@@ -314,6 +305,40 @@ object3,the third object,270819`;
         project,
         outputSchema
       );
+    });
+
+    it('should correctly handle an API error with p-retry', async () => {
+      mockApi()
+        .get('/products?filter=name%3Dfoo')
+        .reply(200, []);
+      mockApi()
+        .post('/products', { name: 'foo' })
+        .reply(400, { errors: ['Bad request!'] });
+
+      const resource = { name: 'foo' };
+      const config = {
+        output: {
+          updateKey: 'name',
+          type: 'product',
+        },
+      };
+      const project = { id: 'foo' };
+      const outputSchema = {
+        required: ['name'],
+        properties: {
+          name: { type: 'string' },
+        },
+      };
+
+      const attempt = () => platform.upsertResource(
+        resource,
+        config,
+        operator,
+        project,
+        outputSchema
+      );
+
+      expect(attempt).to.not.throw();
     });
   });
 });

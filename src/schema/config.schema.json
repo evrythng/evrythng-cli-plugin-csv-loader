@@ -3,8 +3,7 @@
   "additionalProperties": false,
   "required": [
     "input",
-    "output",
-    "statsFile"
+    "output"
   ],
   "properties": {
     "input": {
@@ -50,9 +49,6 @@
           "type": "string"
         }
       }
-    },
-    "statsFile": {
-      "type": "string"
     }
   }
 }

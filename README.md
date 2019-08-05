@@ -72,7 +72,6 @@ and exhaustive mapping can help ensure data integrity.
   * `updateKey` - Either `name` or some `identifiers` key to be used for
     updates.
   * `projectName` - Name of the EVRYTHNG project to use.
-* `statsFile` - Path to a file to write stats and errors.
 
 
 An example configuration is shown below:
@@ -88,8 +87,7 @@ An example configuration is shown below:
     "type": "product",
     "updateKey": "gs1:01",
     "projectName": "Example PoC"
-  },
-  "statsFile": "./errors.txt"
+  }
 }
 ```
 

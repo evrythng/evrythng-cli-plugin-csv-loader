@@ -3,7 +3,6 @@ const evrythng = require('evrythng');
 const fs = require('fs');
 const util = require('./modules/util');
 const platform = require('./modules/platform');
-const stats = require('./modules/stats');
 const mapper = require('./modules/mapper');
 
 /** Schema for config files */
@@ -65,25 +64,6 @@ const EXAMPLE_MAPPING = {
 let cli;
 
 /**
- * Write the stats object to file.
- *
- * @param {object} config - The config.
- * @param {string} csvPath - The CSV file path.
- */
-const writeStatsFile = (config, csvPath) => {
-  let outputStr = `Loaded ${csvPath} on ${new Date().toISOString()}\n`;
-  outputStr += `\nOK: ${stats.success}\n\nFailed: ${stats.failed}\n`;
-  if (stats.errors.length) {
-    outputStr += `\nErrors:`;
-    stats.errors.forEach((p) => {
-      outputStr += `\n${p}`;
-    });
-  }
-
-  fs.writeFileSync(config.statsFile, outputStr, 'utf8');
-};
-
-/**
  * Create an Operator scope using the provided API key.
  *
  * @returns {Promise} Promise that resolves to the initialised Operator scope.
@@ -133,10 +113,7 @@ const load = async (configPath, csvPath) => {
     console.log(`\nComplete!`);
   } catch (e) {
     console.log(e);
-    stats.errors.push(e.message || e.errors[0]);
   }
-
-  writeStatsFile(config, csvPath);
 };
 
 /**

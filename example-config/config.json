@@ -8,6 +8,5 @@
     "schema": "./example-config/output.schema.json",
     "updateKey": "gs1:01",
     "mapping": "./example-config/mapping.json"
-  },
-  "statsFile": "./results.txt"
+  }
 }
