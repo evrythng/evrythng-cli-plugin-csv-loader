@@ -385,5 +385,49 @@ object3,the third object,270819`;
         outputSchema
       );
     });
+
+    it('should support redirection mapped field', async () => {
+      const url = 'https://google.com?id={shortId}';
+
+      mockApi()
+        .get('/products?filter=name%3Dfoo')
+        .reply(200, [{ id: 'bar', name: 'foo' }]);
+      mockApi()
+        .put('/products/bar', { name: 'foo' })
+        .reply(200, { id: 'bar', name: 'foo' });
+      mockApi()
+        .put('/products/bar', {
+          scopes: {
+            projects: ['+foo'],
+          },
+        })
+        .reply(200, [{ id: 'bar', name: 'foo' }]);
+      mockApi()
+        .post('/products/bar/redirector', { defaultRedirectUrl: url })
+        .reply(201, {});
+
+      const resource = { name: 'foo', redirection: url };
+      const config = {
+        output: {
+          updateKey: 'name',
+          type: 'product',
+        },
+      };
+      const project = { id: 'foo' };
+      const outputSchema = {
+        required: ['name'],
+        properties: {
+          name: { type: 'string' },
+        },
+      };
+
+      await platform.upsertResource(
+        resource,
+        config,
+        operator,
+        project,
+        outputSchema
+      );
+    });
   });
 });
