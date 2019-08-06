@@ -340,5 +340,50 @@ object3,the third object,270819`;
 
       expect(attempt).to.not.throw();
     });
+
+    it('should support config.output.defaultRedirectUrl', async () => {
+      const defaultRedirectUrl = 'https://google.com?id={shortId}';
+
+      mockApi()
+        .get('/products?filter=name%3Dfoo')
+        .reply(200, [{ id: 'bar', name: 'foo' }]);
+      mockApi()
+        .put('/products/bar', { name: 'foo' })
+        .reply(200, { id: 'bar', name: 'foo' });
+      mockApi()
+        .put('/products/bar', {
+          scopes: {
+            projects: ['+foo'],
+          },
+        })
+        .reply(200, [{ id: 'bar', name: 'foo' }]);
+      mockApi()
+        .post('/products/bar/redirector', { defaultRedirectUrl })
+        .reply(201, {});
+
+      const resource = { name: 'foo' };
+      const config = {
+        output: {
+          updateKey: 'name',
+          type: 'product',
+          defaultRedirectUrl,
+        },
+      };
+      const project = { id: 'foo' };
+      const outputSchema = {
+        required: ['name'],
+        properties: {
+          name: { type: 'string' },
+        },
+      };
+
+      await platform.upsertResource(
+        resource,
+        config,
+        operator,
+        project,
+        outputSchema
+      );
+    });
   });
 });
