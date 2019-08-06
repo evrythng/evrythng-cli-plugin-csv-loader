@@ -13,20 +13,28 @@
       ],
       "properties": {
         "schema": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         }
       }
     },
     "output": {
-      "additionalProperties": false,
       "required": [
-        "type",
-        "projectName",
         "schema",
+        "mapping",
+        "type",
         "updateKey",
-        "mapping"
+        "projectName"
       ],
       "properties": {
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mapping": {
+          "type": "string",
+          "minLength": 1
+        },
         "type": {
           "type": "string",
           "enum": [
@@ -36,16 +44,15 @@
             "collection"
           ]
         },
-        "projectName": {
-          "type": "string"
-        },
-        "schema": {
-          "type": "string"
-        },
         "updateKey": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
-        "mapping": {
+        "projectName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "defaultRedirectUrl": {
           "type": "string"
         }
       }

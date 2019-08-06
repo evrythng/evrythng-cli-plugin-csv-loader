@@ -72,7 +72,9 @@ and exhaustive mapping can help ensure data integrity.
   * `updateKey` - Either `name` or some `identifiers` key to be used for
     updates.
   * `projectName` - Name of the EVRYTHNG project to use.
-
+  * `defaultRedirectUrl` - (optional) If set, used as the product/Thng
+    redirection URL. Must contain `{shortId}` or `{thngId}`/`{productId}`
+    somewhere depending on the resource type.
 
 An example configuration is shown below:
 
@@ -86,7 +88,8 @@ An example configuration is shown below:
     "mapping": "./example-config/mapping.json",
     "type": "product",
     "updateKey": "gs1:01",
-    "projectName": "Example PoC"
+    "projectName": "Example PoC",
+    "defaultRedirectUrl": "https://google.com?id={shortId}"
   }
 }
 ```
@@ -122,3 +125,9 @@ the mapped value as an empty string (like `SecretCode` shown above).
 Run unit tests using `mocha`:
 
 `npm test`
+
+Run the example config, schemas, and data in `example`:
+
+```bash
+$ evrythng csv-loader load ./example/config.json ./example/data.csv
+```

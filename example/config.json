@@ -1,0 +1,13 @@
+{
+  "input": {
+    "schema": "./example/input.schema.json"
+  },
+  "output": {
+    "schema": "./example/output.schema.json",
+    "mapping": "./example/mapping.json",
+    "type": "product",
+    "updateKey": "gs1:01",
+    "projectName": "CSV Loader Example",
+    "defaultRedirectUrl": "https://google.com?id={shortId}"
+  }
+}

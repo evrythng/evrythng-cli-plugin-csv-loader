@@ -10,7 +10,7 @@
     "brand": {
       "type": "string",
       "enum": [
-        "Puma"
+        "VicTShirts"
       ]
     },
     "identifiers": {

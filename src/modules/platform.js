@@ -1,6 +1,7 @@
 const retry = require('p-retry');
 const util = require('./util');
 
+/** Parallel operations at a time. */
 const BATCH_SIZE = 10;
 
 /**
@@ -19,6 +20,22 @@ const loadProject = async (operator, config) => {
 };
 
 /**
+ * Wrapper for retry() functions that use AbortError.
+ *
+ * @param {function} f - The function.
+ * @returns {Promise<object>} Result of the operation.
+ */
+const retryApi = f => retry(async () => {
+  try {
+    const obj = await f();
+    return obj;
+  } catch (e) {
+    console.log(e);
+    throw new retry.AbortError(e);
+  }
+});
+
+/**
  * Upsert a single resource.
  *
  * @param {object} resource - The resource to create or update.
@@ -28,7 +45,7 @@ const loadProject = async (operator, config) => {
  * @param {object} outputSchema - The output schema.
  */
 const upsertResource = async (resource, config, operator, project, outputSchema) => {
-  const { type, updateKey } = config.output;
+  const { type, updateKey, defaultRedirectUrl } = config.output;
 
   // Assume update by 'name'
   let finalUpdateKey = resource.name;
@@ -43,19 +60,16 @@ const upsertResource = async (resource, config, operator, project, outputSchema)
     util.validate(outputSchema, resource, resource.name);
 
     // Upsert
-    const res = await retry(async () => {
-      try {
-        const obj = await operator[type]().upsert(resource, finalUpdateKey);
-        return obj;
-      } catch (e) {
-        console.log(e);
-        throw new retry.AbortError(e);
-      }
-    });
+    const res = await retryApi(() => operator[type]().upsert(resource, finalUpdateKey));
 
     // Apply project scope
     const payload = { scopes: { projects: [`+${project.id}`] } };
-    await retry(() => operator[type](res.id).update(payload));
+    await retryApi(() => operator[type](res.id).update(payload));
+
+    // Redirection?
+    if (defaultRedirectUrl) {
+      await retryApi(() => operator[type](res.id).redirection().create({ defaultRedirectUrl }));
+    }
   } catch (e) {
     console.log(e);
   }
