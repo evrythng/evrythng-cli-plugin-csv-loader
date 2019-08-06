@@ -98,9 +98,16 @@ An example configuration is shown below:
 ## Mapping Format
 
 The `mapping.json` file describes how to map each field in a CSV record from its
-header name to the EVRYTHNG resource field name. Array fields (i.e: `tags`) and
-sub-objects (i.e: `identifiers` or `customFields`) are suported with square
-bracket and dot notation respectively.
+header name to the EVRYTHNG resource field name.
+
+Array fields (i.e: `tags`) are supported with square bracket notation
+(e.g: `tags[0]`).
+
+Sub-objects (i.e: `identifiers` or `customFields`) are suported with dot
+notation (e.g: `identifier.gs1:01`).
+
+A redirection can be specified using the special `redirection` mapping value.
+This option overrides `defaultRedirectUrl` if it is set in the config file.
 
 An example mapping file is shown below:
 

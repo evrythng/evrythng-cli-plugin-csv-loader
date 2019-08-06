@@ -4,5 +4,6 @@
   "ProductCode": "identifiers.gs1:01",
   "ManufactureDate": "customFields.ManufactureDate",
   "BatchId": "tags[0]",
-  "PhotoUrl": "photos[0]"
+  "PhotoUrl": "photos[0]",
+  "ProductPage": "redirection"
 }

@@ -7,7 +7,8 @@
     "ProductCode",
     "ManufactureDate",
     "BatchId",
-    "PhotoUrl"
+    "PhotoUrl",
+    "ProductPage"
   ],
   "properties": {
     "Brand": {
@@ -30,6 +31,9 @@
       "type": "string"
     },
     "PhotoUrl": {
+      "type": "string"
+    },
+    "ProductPage": {
       "type": "string"
     }
   }

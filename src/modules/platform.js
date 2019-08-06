@@ -30,7 +30,6 @@ const retryApi = f => retry(async () => {
     const obj = await f();
     return obj;
   } catch (e) {
-    console.log(e);
     throw new retry.AbortError(e);
   }
 });
@@ -59,6 +58,13 @@ const upsertResource = async (resource, config, operator, project, outputSchema)
     // Validate
     util.validate(outputSchema, resource, resource.name);
 
+    // Remember any special fields
+    const specials = {};
+    if (resource.redirection) {
+      specials.redirection = resource.redirection;
+      delete resource.redirection;
+    }
+
     // Upsert
     const res = await retryApi(() => operator[type]().upsert(resource, finalUpdateKey));
 
@@ -67,8 +73,19 @@ const upsertResource = async (resource, config, operator, project, outputSchema)
     await retryApi(() => operator[type](res.id).update(payload));
 
     // Redirection?
-    if (defaultRedirectUrl) {
-      await retryApi(() => operator[type](res.id).redirection().create({ defaultRedirectUrl }));
+    if (defaultRedirectUrl || specials.redirection) {
+      const url = specials.redirection || defaultRedirectUrl;
+      try {
+        // Create
+        await retryApi(
+          () => operator[type](res.id).redirection().create({ defaultRedirectUrl: url })
+        );
+      } catch (e) {
+        // Else update
+        await retryApi(
+          () => operator[type](res.id).redirection().update({ defaultRedirectUrl: url })
+        );
+      }
     }
   } catch (e) {
     console.log(e);
