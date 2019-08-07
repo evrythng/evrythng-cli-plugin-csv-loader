@@ -75,17 +75,9 @@ const upsertResource = async (resource, config, operator, project, outputSchema)
     // Redirection?
     if (defaultRedirectUrl || specials.redirection) {
       const url = specials.redirection || defaultRedirectUrl;
-      try {
-        // Create
-        await retryApi(
-          () => operator[type](res.id).redirection().create({ defaultRedirectUrl: url })
-        );
-      } catch (e) {
-        // Else update
-        await retryApi(
-          () => operator[type](res.id).redirection().update({ defaultRedirectUrl: url })
-        );
-      }
+      await retryApi(
+        () => operator[type](res.id).redirection().update({ defaultRedirectUrl: url })
+      );
     }
   } catch (e) {
     console.log(e);
