@@ -30,7 +30,7 @@ const retryApi = f => retry(async () => {
     const obj = await f();
     return obj;
   } catch (e) {
-    throw new retry.AbortError(e);
+    throw new retry.AbortError(e.message || e.errors[0]);
   }
 });
 
