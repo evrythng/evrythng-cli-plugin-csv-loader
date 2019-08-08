@@ -68,12 +68,21 @@ let cli;
  *
  * @returns {Promise} Promise that resolves to the initialised Operator scope.
  */
-const getOperator = async () => {
+const getOperator = async (shortDomain) => {
   const config = cli.getConfig();
 
   const operators = config.get('operators');
   const { region, apiKey } = operators[config.get('using')];
-  evrythng.setup({ apiUrl: config.get('regions')[region] });
+
+  let settings = {
+      apiUrl: config.get('regions')[region]
+  };
+
+  if (shortDomain){
+    settings.defaultShortDomain = shortDomain;
+  }
+
+  evrythng.setup(settings);
 
   const operator = new evrythng.Operator(apiKey);
   await operator.init();
@@ -94,7 +103,7 @@ const load = async (configPath, csvPath) => {
     util.validate(CONFIG_SCHEMA, config, configPath);
 
     // Initialise EVRYTHNG scope and project
-    const operator = await getOperator();
+    const operator = await getOperator(config.output.defaultShortDomain);
     const project = await platform.loadProject(operator, config);
 
     // Load and validate CSV file data

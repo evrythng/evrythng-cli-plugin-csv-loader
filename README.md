@@ -75,6 +75,8 @@ and exhaustive mapping can help ensure data integrity.
   * `defaultRedirectUrl` - (optional) If set, used as the product/Thng
     redirection URL. Must contain `{shortId}` or `{thngId}`/`{productId}`
     somewhere depending on the resource type.
+  * `defaultShortDomain` - (optional) If set, used as the short domain for the creation of the
+        redirection URLs. Needs to be set when the domain is different than the default one.
 
 An example configuration is shown below:
 
@@ -89,7 +91,8 @@ An example configuration is shown below:
     "type": "product",
     "updateKey": "gs1:01",
     "projectName": "Example PoC",
-    "defaultRedirectUrl": "https://google.com?id={shortId}"
+    "defaultRedirectUrl": "https://google.com?id={shortId}",
+    "defaultShortDomain": "abc.tn.gg"
   }
 }
 ```
