@@ -8,6 +8,7 @@
     "type": "product",
     "updateKey": "gs1:01",
     "projectName": "CSV Loader Example",
-    "defaultRedirectUrl": "https://google.com?id={shortId}"
+    "defaultRedirectUrl": "https://google.com",
+    "defaultShortDomain": "tn.gg"
   }
 }

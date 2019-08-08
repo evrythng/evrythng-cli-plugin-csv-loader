@@ -5,6 +5,7 @@ const util = require('./modules/util');
 const platform = require('./modules/platform');
 const mapper = require('./modules/mapper');
 
+const DEFAULT_SHORT_DOMAIN = 'tn.gg';
 /** Schema for config files */
 const CONFIG_SCHEMA = require(`${__dirname}/schema/config.schema.json`);
 /** Example config file directory when using 'init' */
@@ -66,14 +67,19 @@ let cli;
 /**
  * Create an Operator scope using the provided API key.
  *
+ * @param {object} config - Config file contents.
  * @returns {Promise} Promise that resolves to the initialised Operator scope.
  */
-const getOperator = async () => {
-  const config = cli.getConfig();
+const getOperator = async (config) => {
+  const cliConfig = cli.getConfig();
 
-  const operators = config.get('operators');
-  const { region, apiKey } = operators[config.get('using')];
-  evrythng.setup({ apiUrl: config.get('regions')[region] });
+  const operators = cliConfig.get('operators');
+  const { region, apiKey } = operators[cliConfig.get('using')];
+
+  evrythng.setup({
+    apiUrl: cliConfig.get('regions')[region],
+    defaultShortDomain: config.output.defaultShortDomain || DEFAULT_SHORT_DOMAIN,
+  });
 
   const operator = new evrythng.Operator(apiKey);
   await operator.init();
@@ -94,7 +100,7 @@ const load = async (configPath, csvPath) => {
     util.validate(CONFIG_SCHEMA, config, configPath);
 
     // Initialise EVRYTHNG scope and project
-    const operator = await getOperator();
+    const operator = await getOperator(config);
     const project = await platform.loadProject(operator, config);
 
     // Load and validate CSV file data
