@@ -19,7 +19,8 @@
     "evrythng": "^5.4.0",
     "jsonschema": "^1.2.4",
     "neat-csv": "^5.1.0",
-    "p-retry": "^4.1.0"
+    "p-retry": "^4.1.0",
+    "request": "^2.88.0"
   },
   "nyc": {
     "exclude": [

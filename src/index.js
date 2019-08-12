@@ -83,6 +83,7 @@ const getOperator = async (config) => {
 
   const operator = new evrythng.Operator(apiKey);
   await operator.init();
+
   return operator;
 };
 

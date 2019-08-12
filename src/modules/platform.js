@@ -1,4 +1,6 @@
 const retry = require('p-retry');
+const request = require('request');
+const fs = require('fs');
 const util = require('./util');
 
 /** Parallel operations at a time. */
@@ -44,7 +46,7 @@ const retryApi = f => retry(async () => {
  * @param {object} outputSchema - The output schema.
  */
 const upsertResource = async (resource, config, operator, project, outputSchema) => {
-  const { type, updateKey, defaultRedirectUrl } = config.output;
+  const { type, updateKey, defaultRedirectUrl, qrCodesOptions } = config.output;
 
   // Assume update by 'name'
   let finalUpdateKey = resource.name;
@@ -75,14 +77,39 @@ const upsertResource = async (resource, config, operator, project, outputSchema)
     // Redirection?
     if (defaultRedirectUrl || specials.redirection) {
       const url = specials.redirection || defaultRedirectUrl;
-      await retryApi(
+      let redirection = await retryApi(
         () => operator[type](res.id).redirection().update({ defaultRedirectUrl: url })
       );
+
+      if (qrCodesOptions){
+          await retryApi( () => downloadQrCode(qrCodesOptions,res,redirection));
+      }
     }
   } catch (e) {
-    console.log(e);
+    console.log(''+ e);
   }
 };
+
+/**
+ * Retrieves the QR code of the product and stores the file locally
+ *
+ * @param {object} resource - Resource with a redirection.
+ * @param {object} redirection - The redirection object.
+ */
+const downloadQrCode = async (qrCodesOptions, resource, redirection) => new Promise(async (resolve) => {
+    if(!redirection) return;
+
+    const name = resource.name.split(' ').join('_').split('/').join('');
+    const qrcodePath = `./qr-codes/${resource.name}-${redirection.shortId}.${qrCodesOptions.split('?')[0]}`;
+    console.log(`https://${redirection.shortDomain}/${redirection.shortId}.${qrCodesOptions}`);
+    await retryApi( () => request({
+        url: `https://${redirection.shortDomain}/${redirection.shortId}.${qrCodesOptions}`,
+        //headers: { accept: 'image/svg+xml' }
+    }).pipe(fs.createWriteStream(qrcodePath))
+        .on('close', resolve)
+        .on('error', err => console.log(err)));
+});
+
 
 /**
  * Upsert a list of resources, BATCH_SIZE at a time.
