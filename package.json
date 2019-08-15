@@ -18,6 +18,7 @@
   "dependencies": {
     "evrythng": "^5.4.0",
     "jsonschema": "^1.2.4",
+    "log-to-file": "^2.0.1",
     "neat-csv": "^5.1.0",
     "p-retry": "^4.1.0",
     "request": "^2.88.0"

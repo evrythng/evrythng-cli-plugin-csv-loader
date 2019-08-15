@@ -57,6 +57,9 @@
         },
         "qrCodesOptions":{
           "type" : "string"
+        },
+        "validationLogFile":{
+          "type":"string"
         }
       }
     }

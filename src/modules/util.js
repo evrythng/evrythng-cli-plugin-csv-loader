@@ -10,11 +10,11 @@ const neatCsv = require('neat-csv');
  * @param {string} name - Instance name.
  */
 const validate = (schema, instance, name) => {
-  const res = jsonschema.validate(instance, schema);
-  if (res.errors.length) {
-    const errStacks = res.errors.map(p => `\n- ${p.stack}`);
-    throw new Error(`Schema validation failed: ${name}\n${errStacks}`);
-  }
+    const res = jsonschema.validate(instance, schema);
+    if (res.errors.length) {
+        const errStacks = res.errors.map(p => `\n- ${p.stack}`);
+        throw new Error(`Schema validation failed: ${name}\n${errStacks}`);
+    }
 };
 
 /**
@@ -25,9 +25,9 @@ const validate = (schema, instance, name) => {
  * @param {number} total - The task total to do.
  */
 const updateProgress = (label, num, total) => {
-  process.stdout.clearLine();
-  process.stdout.cursorTo(0);
-  process.stdout.write(`${label}: ${num}/${total} (${Math.round((num * 100) / total)}%)`);
+    process.stdout.clearLine();
+    process.stdout.cursorTo(0);
+    process.stdout.write(`${label}: ${num}/${total} (${Math.round((num * 100) / total)}%)`);
 };
 
 /**
@@ -38,13 +38,12 @@ const updateProgress = (label, num, total) => {
  * @returns {*} File content.
  */
 const loadFile = (path, json = true) => {
-  try {
-    const data = fs.readFileSync(path, 'utf8');
-    return json ? JSON.parse(data) : data;
-  } catch (e) {
-    console.log(e);
-    console.log(`Failed to load ${path}`);
-  }
+    try {
+        const data = fs.readFileSync(path, 'utf8');
+        return json ? JSON.parse(data) : data;
+    } catch (e) {
+        console.log(`Failed to load ${path}`);
+    }
 };
 
 /**
@@ -57,20 +56,20 @@ const loadFile = (path, json = true) => {
  * @returns {object} New record with duplicate key data removed.
  */
 const removeDuplicateKeys = (record) => {
-  // Trim away the special whitespace
-  const keys = Object.keys(record).map(p => p.trim());
-  // Create a set of unique keys
-  const newKeys = [...new Set(keys)];
+    // Trim away the special whitespace
+    const keys = Object.keys(record).map(p => p.trim());
+    // Create a set of unique keys
+    const newKeys = [...new Set(keys)];
 
-  // Report the offending keys
-  // const duplicateKeys = Object.keys(record).filter(p => !newKeys.includes(p));
+    // Report the offending keys
+    // const duplicateKeys = Object.keys(record).filter(p => !newKeys.includes(p));
 
-  // Create a record without the duplicate keys
-  const newObj = {};
-  newKeys.forEach((p) => {
-    newObj[p] = record[p];
-  });
-  return newObj;
+    // Create a record without the duplicate keys
+    const newObj = {};
+    newKeys.forEach((p) => {
+        newObj[p] = record[p];
+    });
+    return newObj;
 };
 
 /**
@@ -81,24 +80,42 @@ const removeDuplicateKeys = (record) => {
  * @returns {object[]} List of record objects.
  */
 const loadCsvRecords = async (inputData, inputSchema) => {
-  let records = await neatCsv(inputData);
+    let records = await neatCsv(inputData);
 
-  // If the CSV contains duplicate header names, the first is taken.
-  records = records.map(removeDuplicateKeys);
+    // If the CSV contains duplicate header names, the first is taken.
+    records = records.map(removeDuplicateKeys);
 
-  // Validate every record meets the input schema
-  // TODO: option to load only valid records?
-  records.forEach((object, i) => {
-    validate(inputSchema, object, `Record ${i}`);
-  });
+    // Validate every record meets the input schema
+    console.log('Validating ' + records.length + ' records...');
 
-  return records;
+    let validRecords = [];
+    let invalidRecords = [];
+    records.forEach((object, i) => {
+        try {
+            validate(inputSchema, object, `Record ${i}`);
+            validRecords.push(object);
+            console.log( '[VALID] ' + JSON.stringify(object));
+        }
+        catch (error) {
+            invalidRecords.push(object);
+            console.log( '[INVALID] ' + JSON.stringify(object) + error.toString());
+        }
+    });
+
+    console.log('Valid records ' + validRecords.length);
+    console.log('Invalid records ' + invalidRecords.length);
+
+    let result ={
+        valid:validRecords,
+        invalid:invalidRecords
+    };
+    return result;
 };
 
 module.exports = {
-  validate,
-  updateProgress,
-  removeDuplicateKeys,
-  loadFile,
-  loadCsvRecords,
+    validate,
+    updateProgress,
+    removeDuplicateKeys,
+    loadFile,
+    loadCsvRecords,
 };

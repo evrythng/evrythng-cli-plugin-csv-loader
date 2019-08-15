@@ -4,6 +4,7 @@ const fs = require('fs');
 const util = require('./modules/util');
 const platform = require('./modules/platform');
 const mapper = require('./modules/mapper');
+const log = require('log-to-file');
 
 const DEFAULT_SHORT_DOMAIN = 'tn.gg';
 /** Schema for config files */
@@ -93,7 +94,7 @@ const getOperator = async (config) => {
  * @param {string} configPath - Path to the nominated config file.
  * @param {string} csvPath - The CSV file path.
  */
-const load = async (configPath, csvPath) => {
+const load = async (configPath, csvPath, validateOnly) => {
   let config;
 
   try {
@@ -109,13 +110,25 @@ const load = async (configPath, csvPath) => {
     const inputData = util.loadFile(csvPath, false);
     const csvRecords = await util.loadCsvRecords(inputData, inputSchema);
 
-    // Map records to EVRYTHNG resources
-    const mapping = util.loadFile(config.output.mapping);
-    const resources = csvRecords.map(p => mapper.mapRecordToResource(p, mapping));
+    if (!validateOnly){
+        // Map records to EVRYTHNG resources
+        const mapping = util.loadFile(config.output.mapping);
+        const resources = csvRecords.valid.map(p => mapper.mapRecordToResource(p, mapping));
 
-    // Apply changes
-    const outputSchema = util.loadFile(config.output.schema);
-    await platform.upsertAllResources(operator, config, resources, project, outputSchema);
+        // Apply changes
+        const outputSchema = util.loadFile(config.output.schema);
+        await platform.upsertAllResources(operator, config, resources, project, outputSchema);
+
+    }else{
+        if (config.output.validationLog){
+          let logfile= config.output.validationLog + '/' + csvPath.split('/')[csvPath.split('/').length-1] + '(' + csvRecords.invalid.length + '_'+ csvRecords.valid.length +').log';
+          console.log(logfile);
+            log('Invalid Records:',logfile);
+            csvRecords.invalid.forEach((record, i) => {
+                log(JSON.stringify(record),logfile);
+            });
+        }
+    }
 
     console.log(`\nComplete!`);
   } catch (e) {
@@ -168,8 +181,8 @@ module.exports = (api) => {
         pattern: 'init',
       },
       load: {
-        execute: async ([, configPath, csvPath]) => load(configPath, csvPath),
-        pattern: 'load $configPath $csvPath',
+        execute: async ([, configPath, csvPath, validateOnly]) => load(configPath, csvPath,validateOnly),
+        pattern: 'load $configPath $csvPath $validateOnly',
       },
     },
   };

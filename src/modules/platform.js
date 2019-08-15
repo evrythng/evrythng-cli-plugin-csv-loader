@@ -4,7 +4,7 @@ const fs = require('fs');
 const util = require('./util');
 
 /** Parallel operations at a time. */
-const BATCH_SIZE = 10;
+const BATCH_SIZE = 30;
 
 /**
  * Load the EVRYTHNG project, creating if neccessary.
@@ -14,11 +14,11 @@ const BATCH_SIZE = 10;
  * @returns {object} The project.
  */
 const loadProject = async (operator, config) => {
-  const { projectName } = config.output;
-  const project = await operator.project().upsert({ name: projectName }, projectName);
-  console.log(`Using project ${project.id}`);
+    const {projectName} = config.output;
+    const project = await operator.project().upsert({name: projectName}, projectName);
+    console.log(`Using project ${project.id}`);
 
-  return project;
+    return project;
 };
 
 /**
@@ -28,12 +28,12 @@ const loadProject = async (operator, config) => {
  * @returns {Promise<object>} Result of the operation.
  */
 const retryApi = f => retry(async () => {
-  try {
-    const obj = await f();
-    return obj;
-  } catch (e) {
-    throw new retry.AbortError(e.message || e.errors[0]);
-  }
+    try {
+        const obj = await f();
+        return obj;
+    } catch (e) {
+        throw new retry.AbortError(e.message || e.errors[0]);
+    }
 });
 
 /**
@@ -46,48 +46,48 @@ const retryApi = f => retry(async () => {
  * @param {object} outputSchema - The output schema.
  */
 const upsertResource = async (resource, config, operator, project, outputSchema) => {
-  const { type, updateKey, defaultRedirectUrl, qrCodesOptions } = config.output;
+    const {type, updateKey, defaultRedirectUrl, qrCodesOptions} = config.output;
 
-  // Assume update by 'name'
-  let finalUpdateKey = resource.name;
+    // Assume update by 'name'
+    let finalUpdateKey = resource.name;
 
-  // If not, update by nominated identifiers key instead
-  if (updateKey !== 'name') {
-    finalUpdateKey = { [updateKey]: resource.identifiers[updateKey] };
-  }
-
-  try {
-    // Validate
-    util.validate(outputSchema, resource, resource.name);
-
-    // Remember any special fields
-    const specials = {};
-    if (resource.redirection) {
-      specials.redirection = resource.redirection;
-      delete resource.redirection;
+    // If not, update by nominated identifiers key instead
+    if (updateKey !== 'name') {
+        finalUpdateKey = {[updateKey]: resource.identifiers[updateKey]};
     }
 
-    // Upsert
-    const res = await retryApi(() => operator[type]().upsert(resource, finalUpdateKey));
+    try {
+        // Validate
+        util.validate(outputSchema, resource, resource.name);
 
-    // Apply project scope
-    const payload = { scopes: { projects: [`+${project.id}`] } };
-    await retryApi(() => operator[type](res.id).update(payload));
+        // Remember any special fields
+        const specials = {};
+        if (resource.redirection) {
+            specials.redirection = resource.redirection;
+            delete resource.redirection;
+        }
 
-    // Redirection?
-    if (defaultRedirectUrl || specials.redirection) {
-      const url = specials.redirection || defaultRedirectUrl;
-      let redirection = await retryApi(
-        () => operator[type](res.id).redirection().update({ defaultRedirectUrl: url })
-      );
+        // Upsert
+        const res = await retryApi(() => operator[type]().upsert(resource, finalUpdateKey));
 
-      if (qrCodesOptions){
-          await retryApi( () => downloadQrCode(qrCodesOptions,res,redirection));
-      }
+        // Apply project scope
+        const payload = {scopes: {projects: [`+${project.id}`]}};
+        await retryApi(() => operator[type](res.id).update(payload));
+
+        // Redirection?
+        if (defaultRedirectUrl || specials.redirection) {
+            const url = specials.redirection || defaultRedirectUrl;
+            let redirection = await retryApi(
+                () => operator[type](res.id).redirection().update({defaultRedirectUrl: url})
+            );
+
+            if (qrCodesOptions) {
+                await retryApi(() => downloadQrCode(qrCodesOptions, res, redirection));
+            }
+        }
+    } catch (e) {
+        console.log('' + e);
     }
-  } catch (e) {
-    console.log(''+ e);
-  }
 };
 
 /**
@@ -97,12 +97,13 @@ const upsertResource = async (resource, config, operator, project, outputSchema)
  * @param {object} redirection - The redirection object.
  */
 const downloadQrCode = async (qrCodesOptions, resource, redirection) => new Promise(async (resolve) => {
-    if(!redirection) return;
+    if (!redirection) return;
 
     const name = resource.name.split(' ').join('_').split('/').join('');
-    const qrcodePath = `./qr-codes/${resource.name}-${redirection.shortId}.${qrCodesOptions.split('?')[0]}`;
-    console.log(`https://${redirection.shortDomain}/${redirection.shortId}.${qrCodesOptions}`);
-    await retryApi( () => request({
+    //TODO make a variable or move to another plugin
+    const qrcodePath = `./logs/qr-codes/${resource.name}-${redirection.shortId}.${qrCodesOptions.split('?')[0]}`;
+    console.log(`Downloading QR Code from https://${redirection.shortDomain}/${redirection.shortId}.${qrCodesOptions}`);
+    await retryApi(() => request({
         url: `https://${redirection.shortDomain}/${redirection.shortId}.${qrCodesOptions}`,
         //headers: { accept: 'image/svg+xml' }
     }).pipe(fs.createWriteStream(qrcodePath))
@@ -121,21 +122,21 @@ const downloadQrCode = async (qrCodesOptions, resource, redirection) => new Prom
  * @param {object} outputSchema - The output schema.
  */
 const upsertAllResources = async (operator, config, resources, project, outputSchema) => {
-  const total = resources.length;
-  let processed = 0;
-  while (resources.length) {
-    const batch = resources.splice(0, BATCH_SIZE);
-    await Promise.all(batch.map(p => upsertResource(p, config, operator, project, outputSchema)));
+    const total = resources.length;
+    let processed = 0;
+    while (resources.length) {
+        const batch = resources.splice(0, BATCH_SIZE);
+        await Promise.all(batch.map(p => upsertResource(p, config, operator, project, outputSchema)));
 
-    processed += BATCH_SIZE;
-    util.updateProgress('Creating/updating resources', processed, total);
-  }
+        processed += BATCH_SIZE;
+        util.updateProgress('Creating/updating resources', processed, total);
+    }
 
-  util.updateProgress('Creating/updating objects', total, total);
+    util.updateProgress('Creating/updating objects', total, total);
 };
 
 module.exports = {
-  loadProject,
-  upsertResource,
-  upsertAllResources,
+    loadProject,
+    upsertResource,
+    upsertAllResources,
 };
