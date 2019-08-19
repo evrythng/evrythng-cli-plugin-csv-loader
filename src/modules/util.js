@@ -1,6 +1,7 @@
 const fs = require('fs');
 const jsonschema = require('jsonschema');
 const neatCsv = require('neat-csv');
+const log = require('./log').log;
 
 /**
  * Validate a file meets a schema.
@@ -42,7 +43,7 @@ const loadFile = (path, json = true) => {
         const data = fs.readFileSync(path, 'utf8');
         return json ? JSON.parse(data) : data;
     } catch (e) {
-        console.log(`Failed to load ${path}`);
+        log(`Failed to load ${path}`);
     }
 };
 
@@ -86,7 +87,7 @@ const loadCsvRecords = async (inputData, inputSchema) => {
     records = records.map(removeDuplicateKeys);
 
     // Validate every record meets the input schema
-    console.log('Validating ' + records.length + ' records...');
+    log('Validating ' + records.length + ' records...');
 
     let validRecords = [];
     let invalidRecords = [];
@@ -102,8 +103,8 @@ const loadCsvRecords = async (inputData, inputSchema) => {
         }
     });
 
-    console.log('Valid records ' + validRecords.length);
-    console.log('Invalid records ' + invalidRecords.length);
+    log('Valid records ' + validRecords.length);
+    log('Invalid records ' + invalidRecords.length);
 
     let result ={
         valid:validRecords,

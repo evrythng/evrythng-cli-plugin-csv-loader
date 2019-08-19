@@ -4,7 +4,7 @@ const fs = require('fs');
 const util = require('./modules/util');
 const platform = require('./modules/platform');
 const mapper = require('./modules/mapper');
-const log = require('log-to-file');
+const log = require('./modules/log').log;
 
 const DEFAULT_SHORT_DOMAIN = 'tn.gg';
 /** Schema for config files */
@@ -96,7 +96,6 @@ const getOperator = async (config) => {
  */
 const load = async (configPath, csvPath, validateOnly) => {
   let config;
-
   try {
     config = util.loadFile(configPath);
     util.validate(CONFIG_SCHEMA, config, configPath);
@@ -118,21 +117,14 @@ const load = async (configPath, csvPath, validateOnly) => {
         // Apply changes
         const outputSchema = util.loadFile(config.output.schema);
         await platform.upsertAllResources(operator, config, resources, project, outputSchema);
-
-    }else{
-        if (config.output.validationLog){
-          let logfile= config.output.validationLog + '/' + csvPath.split('/')[csvPath.split('/').length-1] + '(' + csvRecords.invalid.length + '_'+ csvRecords.valid.length +').log';
-          console.log(logfile);
-            log('Invalid Records:',logfile);
-            csvRecords.invalid.forEach((record, i) => {
-                log(JSON.stringify(record),logfile);
-            });
-        }
     }
+            csvRecords.invalid.forEach((record, i) => {
+                log(JSON.stringify(record),'invalid-csv-records');
+            });
 
-    console.log(`\nComplete!`);
+    log(`Complete!`);
   } catch (e) {
-    console.log(e);
+    log(e);
   }
 };
 
@@ -161,7 +153,7 @@ const writeExampleFiles = () => {
     JSON.stringify(EXAMPLE_MAPPING, null, 2),
     'utf8',
   );
-  console.log(`Wrote example config files to ./${EXAMPLE_CONFIG_DIR}`);
+  log(`Wrote example config files to ./${EXAMPLE_CONFIG_DIR}`);
 };
 
 /**

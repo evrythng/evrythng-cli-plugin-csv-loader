@@ -2,7 +2,7 @@ const retry = require('p-retry');
 const request = require('request');
 const fs = require('fs');
 const util = require('./util');
-
+const log = require('./log').log;
 /** Parallel operations at a time. */
 const BATCH_SIZE = 30;
 
@@ -16,7 +16,7 @@ const BATCH_SIZE = 30;
 const loadProject = async (operator, config) => {
     const {projectName} = config.output;
     const project = await operator.project().upsert({name: projectName}, projectName);
-    console.log(`Using project ${project.id}`);
+    log(`Using project ${project.id}`);
 
     return project;
 };
@@ -86,7 +86,7 @@ const upsertResource = async (resource, config, operator, project, outputSchema)
             }
         }
     } catch (e) {
-        console.log('' + e);
+        log('' + e);
     }
 };
 
@@ -102,13 +102,13 @@ const downloadQrCode = async (qrCodesOptions, resource, redirection) => new Prom
     const name = resource.name.split(' ').join('_').split('/').join('');
     //TODO make a variable or move to another plugin
     const qrcodePath = `./logs/qr-codes/${resource.name}-${redirection.shortId}.${qrCodesOptions.split('?')[0]}`;
-    console.log(`Downloading QR Code from https://${redirection.shortDomain}/${redirection.shortId}.${qrCodesOptions}`);
+    log(`Downloading QR Code from https://${redirection.shortDomain}/${redirection.shortId}.${qrCodesOptions}`);
     await retryApi(() => request({
         url: `https://${redirection.shortDomain}/${redirection.shortId}.${qrCodesOptions}`,
         //headers: { accept: 'image/svg+xml' }
     }).pipe(fs.createWriteStream(qrcodePath))
         .on('close', resolve)
-        .on('error', err => console.log(err)));
+        .on('error', err => log(err)));
 });
 
 
@@ -124,15 +124,23 @@ const downloadQrCode = async (qrCodesOptions, resource, redirection) => new Prom
 const upsertAllResources = async (operator, config, resources, project, outputSchema) => {
     const total = resources.length;
     let processed = 0;
+    let percentage = Math.round((processed * 100) / total);
     while (resources.length) {
         const batch = resources.splice(0, BATCH_SIZE);
         await Promise.all(batch.map(p => upsertResource(p, config, operator, project, outputSchema)));
 
         processed += BATCH_SIZE;
-        util.updateProgress('Creating/updating resources', processed, total);
+        let newPercentage = Math.round((processed * 100) / total);
+//        util.updateProgress('Creating/updating resources', processed, total);
+        if ((percentage != newPercentage) && (newPercentage < 100)){
+            percentage = newPercentage;
+            log('Creating/updating resources ' + percentage + '% of ' + total);
+        }
     }
 
-    util.updateProgress('Creating/updating objects', total, total);
+    log('Creating/updating resources 100% of ' + total);
+    //log('Created/updated ' + total);
+  //  util.updateProgress('Creating/updating resources', total, total);
 };
 
 module.exports = {
