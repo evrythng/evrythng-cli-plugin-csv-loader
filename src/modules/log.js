@@ -1,6 +1,6 @@
 const logInstance = require('log-to-file');
 const fs = require('fs');
-const defaultLog = './logs/' + new Date().toISOString() + '/';
+const defaultLog = './logs/' + new Date().toDateString() + '/';
 
 const log = async (message, logfile) => {
 
