@@ -122,6 +122,7 @@ const downloadQrCode = async (qrCodesOptions, resource, redirection) => new Prom
  * @param {object} outputSchema - The output schema.
  */
 const upsertAllResources = async (operator, config, resources, project, outputSchema,batchSize) => {
+    batchSize = parseInt(batchSize);
     const total = resources.length;
     let processed = 0;
     let percentage = Math.round((processed * 100) / total);
@@ -131,7 +132,8 @@ const upsertAllResources = async (operator, config, resources, project, outputSc
 
         processed += batchSize;
         let newPercentage = Math.round((processed * 100) / total);
-//        util.updateProgress('Creating/updating resources', processed, total);
+
+//      util.updateProgress('Creating/updating resources', processed, total);
         if ((percentage != newPercentage) && (newPercentage < 100)){
             percentage = newPercentage;
             log('Creating/updating resources ' + percentage + '% of ' + total);

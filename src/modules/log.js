@@ -14,8 +14,8 @@ const log = async (message, logfile) => {
     }
     else{
         await logInstance(message,defaultLog + 'console.log');
+        console.log(message);
     }
-    console.log(message);
 };
 
 const getLogTemplate = ()=>{

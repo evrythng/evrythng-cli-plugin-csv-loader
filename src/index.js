@@ -123,11 +123,8 @@ const load = async (configPath, csvPath, validateOnly, batchSize) => {
             await platform.upsertAllResources(operator, config, resources, project, outputSchema, batchSize);
         }
 
-        csvRecords.invalid.forEach((record, i) => {
-            log('('+ record.count + ')' + JSON.stringify(record), 'invalid-csv-records');
-        });
-
         log(`Complete!`);
+
     } catch (e) {
         log(e);
     }
