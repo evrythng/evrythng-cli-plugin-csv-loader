@@ -1,4 +1,4 @@
-const { execSync } = require('child_process');
+const {execSync} = require('child_process');
 const evrythng = require('evrythng');
 const fs = require('fs');
 const util = require('./modules/util');
@@ -13,54 +13,54 @@ const CONFIG_SCHEMA = require(`${__dirname}/schema/config.schema.json`);
 const EXAMPLE_CONFIG_DIR = 'csv-loader-config';
 /** Example config file */
 const EXAMPLE_CONFIG = {
-  input: {
-    schema: `./${EXAMPLE_CONFIG_DIR}/input.schema.json`,
-  },
-  output: {
-    schema: `./${EXAMPLE_CONFIG_DIR}/output.schema.json`,
-    mapping: `./${EXAMPLE_CONFIG_DIR}/mapping.json`,
-    type: 'product',
-    updateKey: 'name',
-    projectName: '',
-  },
+    input: {
+        schema: `./${EXAMPLE_CONFIG_DIR}/input.schema.json`,
+    },
+    output: {
+        schema: `./${EXAMPLE_CONFIG_DIR}/output.schema.json`,
+        mapping: `./${EXAMPLE_CONFIG_DIR}/mapping.json`,
+        type: 'product',
+        updateKey: 'name',
+        projectName: '',
+    },
 };
 /** Example input schema */
 const EXAMPLE_INPUT_SCHEMA = {
-  $schema: 'http://json-schema.org/draft-07/schema#',
-  additionalProperties: false,
-  required: ['ProductName', 'BatchId', 'ColorCode'],
-  properties: {
-    ProductName: { type: 'string' },
-    BatchId: { type: 'string' },
-    ColorCode: { type: 'string' },
-  },
+    $schema: 'http://json-schema.org/draft-07/schema#',
+    additionalProperties: false,
+    required: ['ProductName', 'BatchId', 'ColorCode'],
+    properties: {
+        ProductName: {type: 'string'},
+        BatchId: {type: 'string'},
+        ColorCode: {type: 'string'},
+    },
 };
 /** Example output schema */
 const EXAMPLE_OUTPUT_SCHEMA = {
-  $schema: 'http://json-schema.org/draft-07/schema#',
-  additionalProperties: false,
-  required: ['name', 'tags', 'customFields'],
-  properties: {
-    name: { type: 'string' },
-    tags: {
-      type: 'array',
-      items: { type: 'string' },
-      minItems: 1,
+    $schema: 'http://json-schema.org/draft-07/schema#',
+    additionalProperties: false,
+    required: ['name', 'tags', 'customFields'],
+    properties: {
+        name: {type: 'string'},
+        tags: {
+            type: 'array',
+            items: {type: 'string'},
+            minItems: 1,
+        },
+        customFields: {
+            additionalProperties: false,
+            required: ['colorCode'],
+            properties: {
+                colorCode: {type: 'string'},
+            },
+        },
     },
-    customFields: {
-      additionalProperties: false,
-      required: ['colorCode'],
-      properties: {
-        colorCode: { type: 'string' },
-      },
-    },
-  },
 };
 /** Example mapping file */
 const EXAMPLE_MAPPING = {
-  ProductName: 'name',
-  BatchId: 'tags[0]',
-  ColorCode: 'customFields.colorCode',
+    ProductName: 'name',
+    BatchId: 'tags[0]',
+    ColorCode: 'customFields.colorCode',
 };
 
 let cli;
@@ -72,20 +72,20 @@ let cli;
  * @returns {Promise} Promise that resolves to the initialised Operator scope.
  */
 const getOperator = async (config) => {
-  const cliConfig = cli.getConfig();
+    const cliConfig = cli.getConfig();
 
-  const operators = cliConfig.get('operators');
-  const { region, apiKey } = operators[cliConfig.get('using')];
+    const operators = cliConfig.get('operators');
+    const {region, apiKey} = operators[cliConfig.get('using')];
 
-  evrythng.setup({
-    apiUrl: cliConfig.get('regions')[region],
-    defaultShortDomain: config.output.defaultShortDomain || DEFAULT_SHORT_DOMAIN,
-  });
+    evrythng.setup({
+        apiUrl: cliConfig.get('regions')[region],
+        defaultShortDomain: config.output.defaultShortDomain || DEFAULT_SHORT_DOMAIN,
+    });
 
-  const operator = new evrythng.Operator(apiKey);
-  await operator.init();
+    const operator = new evrythng.Operator(apiKey);
+    await operator.init();
 
-  return operator;
+    return operator;
 };
 
 /**
@@ -94,66 +94,71 @@ const getOperator = async (config) => {
  * @param {string} configPath - Path to the nominated config file.
  * @param {string} csvPath - The CSV file path.
  */
-const load = async (configPath, csvPath, validateOnly) => {
-  let config;
-  try {
-    config = util.loadFile(configPath);
-    util.validate(CONFIG_SCHEMA, config, configPath);
+const load = async (configPath, csvPath, validateOnly, batchSize) => {
+    let config;
+    try {
+        config = util.loadFile(configPath);
+        util.validate(CONFIG_SCHEMA, config, configPath);
 
-    // Initialise EVRYTHNG scope and project
-    const operator = await getOperator(config);
-    const project = await platform.loadProject(operator, config);
+        // Initialise EVRYTHNG scope and project
+        const operator = await getOperator(config);
+        const project = await platform.loadProject(operator, config);
 
-    // Load and validate CSV file data
-    const inputSchema = util.loadFile(config.input.schema);
-    const inputData = util.loadFile(csvPath, false);
-    const csvRecords = await util.loadCsvRecords(inputData, inputSchema);
+        // Load and validate CSV file data
+        const inputSchema = util.loadFile(config.input.schema);
+        const inputData = util.loadFile(csvPath, false);
+        const csvRecords = await util.loadCsvRecords(inputData, inputSchema);
 
-    if (!validateOnly){
-        // Map records to EVRYTHNG resources
-        const mapping = util.loadFile(config.output.mapping);
-        const resources = csvRecords.valid.map(p => mapper.mapRecordToResource(p, mapping));
+        log('CSV Records loaded in memory');
+        log(' Valid records ' + csvRecords.valid.length);
+        log(' Invalid records ' + csvRecords.invalid.length);
 
-        // Apply changes
-        const outputSchema = util.loadFile(config.output.schema);
-        await platform.upsertAllResources(operator, config, resources, project, outputSchema);
+        if (!validateOnly) {
+            // Map records to EVRYTHNG resources
+            const mapping = util.loadFile(config.output.mapping);
+            const resources = csvRecords.valid.map(p => mapper.mapRecordToResource(p, mapping));
+
+            // Apply changes
+            const outputSchema = util.loadFile(config.output.schema);
+            await platform.upsertAllResources(operator, config, resources, project, outputSchema, batchSize);
+        }
+
+        csvRecords.invalid.forEach((record, i) => {
+            log('('+ record.count + ')' + JSON.stringify(record), 'invalid-csv-records');
+        });
+
+        log(`Complete!`);
+    } catch (e) {
+        log(e);
     }
-            csvRecords.invalid.forEach((record, i) => {
-                log(JSON.stringify(record),'invalid-csv-records');
-            });
-
-    log(`Complete!`);
-  } catch (e) {
-    log(e);
-  }
 };
 
 /**
  * Create example config and schema files.
  */
 const writeExampleFiles = () => {
-  execSync(`mkdir -p ./${EXAMPLE_CONFIG_DIR}`);
-  fs.writeFileSync(
-    `./${EXAMPLE_CONFIG_DIR}/config.json`,
-    JSON.stringify(EXAMPLE_CONFIG, null, 2),
-    'utf8',
-  );
-  fs.writeFileSync(
-    `./${EXAMPLE_CONFIG_DIR}/input.schema.json`,
-    JSON.stringify(EXAMPLE_INPUT_SCHEMA, null, 2),
-    'utf8',
-  );
-  fs.writeFileSync(
-    `./${EXAMPLE_CONFIG_DIR}/output.schema.json`,
-    JSON.stringify(EXAMPLE_OUTPUT_SCHEMA, null, 2),
-    'utf8',
-  );
-  fs.writeFileSync(
-    `./${EXAMPLE_CONFIG_DIR}/mapping.json`,
-    JSON.stringify(EXAMPLE_MAPPING, null, 2),
-    'utf8',
-  );
-  log(`Wrote example config files to ./${EXAMPLE_CONFIG_DIR}`);
+    execSync(`mkdir -p ./${EXAMPLE_CONFIG_DIR}`);
+    fs.writeFileSync(
+        `./${EXAMPLE_CONFIG_DIR}/config.json`,
+        JSON.stringify(EXAMPLE_CONFIG, null, 2),
+        'utf8',
+    );
+    fs.writeFileSync(
+        `./${EXAMPLE_CONFIG_DIR}/input.schema.json`,
+        JSON.stringify(EXAMPLE_INPUT_SCHEMA, null, 2),
+        'utf8',
+    );
+    fs.writeFileSync(
+        `./${EXAMPLE_CONFIG_DIR}/output.schema.json`,
+        JSON.stringify(EXAMPLE_OUTPUT_SCHEMA, null, 2),
+        'utf8',
+    );
+    fs.writeFileSync(
+        `./${EXAMPLE_CONFIG_DIR}/mapping.json`,
+        JSON.stringify(EXAMPLE_MAPPING, null, 2),
+        'utf8',
+    );
+    log(`Wrote example config files to ./${EXAMPLE_CONFIG_DIR}`);
 };
 
 /**
@@ -162,22 +167,22 @@ const writeExampleFiles = () => {
  * @param {object} api - EVRYTHNG CLI API.
  */
 module.exports = (api) => {
-  cli = api;
+    cli = api;
 
-  const newCommand = {
-    about: 'Validate, map, create, and update resources from a CSV file.',
-    firstArg: 'csv-loader',
-    operations: {
-      init: {
-        execute: async () => writeExampleFiles(),
-        pattern: 'init',
-      },
-      load: {
-        execute: async ([, configPath, csvPath, validateOnly]) => load(configPath, csvPath,validateOnly),
-        pattern: 'load $configPath $csvPath $validateOnly',
-      },
-    },
-  };
+    const newCommand = {
+        about: 'Validate, map, create, and update resources from a CSV file.',
+        firstArg: 'csv-loader',
+        operations: {
+            init: {
+                execute: async () => writeExampleFiles(),
+                pattern: 'init',
+            },
+            load: {
+                execute: async ([, configPath, csvPath, validateOnly, batchSize]) => load(configPath, csvPath, validateOnly, batchSize),
+                pattern: 'load $configPath $csvPath $validateOnly',
+            },
+        },
+    };
 
-  api.registerCommand(newCommand);
+    api.registerCommand(newCommand);
 };

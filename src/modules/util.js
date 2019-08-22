@@ -81,6 +81,9 @@ const removeDuplicateKeys = (record) => {
  * @returns {object[]} List of record objects.
  */
 const loadCsvRecords = async (inputData, inputSchema) => {
+    // Validate every record meets the input schema
+    log('Loading CSV File ' + inputData);
+
     let records = await neatCsv(inputData);
 
     // If the CSV contains duplicate header names, the first is taken.
@@ -91,20 +94,20 @@ const loadCsvRecords = async (inputData, inputSchema) => {
 
     let validRecords = [];
     let invalidRecords = [];
+    let count = 0;
     records.forEach((object, i) => {
         try {
             validate(inputSchema, object, `Record ${i}`);
             validRecords.push(object);
-            console.log( '[VALID] ' + JSON.stringify(object));
+//            log( `(${count++}) [VALID] ${JSON.stringify(object)}`);
+            log( `(${count++}) [VALID]`);
         }
         catch (error) {
+            object.count = count;
             invalidRecords.push(object);
-            console.log( '[INVALID] ' + JSON.stringify(object) + error.toString());
+            log( `(${count++}) [INVALID]`);
         }
     });
-
-    log('Valid records ' + validRecords.length);
-    log('Invalid records ' + invalidRecords.length);
 
     let result ={
         valid:validRecords,
