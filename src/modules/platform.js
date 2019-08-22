@@ -73,7 +73,7 @@ const upsertResource = async (resource, config, operator, project, outputSchema,
         console.log(`(${count}) Upserted `);
 
         // Apply project scope
-        const payload = {scopes: {projects: [`+${project.id}`]}};
+        const payload = {scopes: {projects: [`+${project.id}`], users:['all']}};
         await retryApi(() => operator[type](res.id).update(payload));
         console.log(`(${count}) Updated scope `);
 
