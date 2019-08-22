@@ -45,7 +45,7 @@ const retryApi = f => retry(async () => {
  * @param {object} project - The project to scope to.
  * @param {object} outputSchema - The output schema.
  */
-const upsertResource = async (resource, config, operator, project, outputSchema) => {
+const upsertResource = async (resource, config, operator, project, outputSchema,count) => {
     const {type, updateKey, defaultRedirectUrl, qrCodesOptions} = config.output;
 
     // Assume update by 'name'
@@ -59,6 +59,7 @@ const upsertResource = async (resource, config, operator, project, outputSchema)
     try {
         // Validate
         util.validate(outputSchema, resource, resource.name);
+        console.log(`(${count}) Validated `);
 
         // Remember any special fields
         const specials = {};
@@ -69,10 +70,12 @@ const upsertResource = async (resource, config, operator, project, outputSchema)
 
         // Upsert
         const res = await retryApi(() => operator[type]().upsert(resource, finalUpdateKey));
+        console.log(`(${count}) Upserted `);
 
         // Apply project scope
         const payload = {scopes: {projects: [`+${project.id}`]}};
         await retryApi(() => operator[type](res.id).update(payload));
+        console.log(`(${count}) Updated scope `);
 
         // Redirection?
         if (defaultRedirectUrl || specials.redirection) {
@@ -81,8 +84,12 @@ const upsertResource = async (resource, config, operator, project, outputSchema)
                 () => operator[type](res.id).redirection().update({defaultRedirectUrl: url})
             );
 
+            console.log(`(${count}) Updated redirection `);
+
             if (qrCodesOptions) {
                 await retryApi(() => downloadQrCode(qrCodesOptions, res, redirection));
+
+                console.log(`(${count}) QR downloaded`);
             }
         }
     } catch (e) {
@@ -126,9 +133,15 @@ const upsertAllResources = async (operator, config, resources, project, outputSc
     const total = resources.length;
     let processed = 0;
     let percentage = Math.round((processed * 100) / total);
+    let count = 0;
     while (resources.length) {
         const batch = resources.splice(0, batchSize);
-        await Promise.all(batch.map(p => upsertResource(p, config, operator, project, outputSchema)));
+
+        let promises = [];
+        for (let resource of batch){
+            promises.push(upsertResource(resource, config, operator, project, outputSchema,count++));
+        }
+        await Promise.all(promises);
 
         processed += batchSize;
         let newPercentage = Math.round((processed * 100) / total);

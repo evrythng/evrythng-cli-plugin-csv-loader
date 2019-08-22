@@ -82,7 +82,6 @@ const removeDuplicateKeys = (record) => {
  */
 const loadCsvRecords = async (inputData, inputSchema) => {
     // Validate every record meets the input schema
-    log('Loading CSV File');
 
     let records = await neatCsv(inputData);
 
@@ -90,7 +89,7 @@ const loadCsvRecords = async (inputData, inputSchema) => {
     records = records.map(removeDuplicateKeys);
 
     // Validate every record meets the input schema
-    log('Validating ' + records.length + ' records...');
+    console.log('Validating ' + records.length + ' records...');
 
     let validRecords = [];
     let invalidRecords = [];
@@ -99,13 +98,14 @@ const loadCsvRecords = async (inputData, inputSchema) => {
         try {
             validate(inputSchema, object, `Record ${i}`);
             validRecords.push(object);
-//            log( `(${count++}) [VALID] ${JSON.stringify(object)}`);
-            log( `(${count++}) [VALID]`);
+            //console.log( `(${count++}) [VALID] ${JSON.stringify(object)}`);
+            console.log( `(${count++}) [VALID]`);
         }
         catch (error) {
+            object.count = count;
             invalidRecords.push(object);
-            log( `(${count++}) [INVALID]`);
-            log('('+ count + ')' + JSON.stringify(object), 'invalid-csv-records');
+            console.log( `(${count++}) [INVALID]`);
+
         }
     });
 

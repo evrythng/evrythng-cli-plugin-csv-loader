@@ -116,12 +116,21 @@ const load = async (configPath, csvPath, validateOnly, batchSize) => {
         if (!validateOnly) {
             // Map records to EVRYTHNG resources
             const mapping = util.loadFile(config.output.mapping);
+            console.log('Creating resources...');
             const resources = csvRecords.valid.map(p => mapper.mapRecordToResource(p, mapping));
 
             // Apply changes
             const outputSchema = util.loadFile(config.output.schema);
             await platform.upsertAllResources(operator, config, resources, project, outputSchema, batchSize);
         }
+
+        console.log('Logging invalid records to file...');
+        await log('('+ csvRecords.invalid.length + ')' + JSON.stringify(csvRecords.invalid), 'invalid-csv-records');
+/*
+        for (let invalid of csvRecords.invalid){
+            await log('('+ invalid.count + ')' + JSON.stringify(invalid), 'invalid-csv-records');
+        }
+*/
 
         log(`Complete!`);
 
