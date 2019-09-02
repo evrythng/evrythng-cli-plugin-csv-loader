@@ -2,7 +2,7 @@ const fs = require('fs');
 const jsonschema = require('jsonschema');
 const neatCsv = require('neat-csv');
 const log = require('./log').log;
-
+var readline = require('readline');
 /**
  * Validate a file meets a schema.
  *
@@ -26,8 +26,8 @@ const validate = (schema, instance, name) => {
  * @param {number} total - The task total to do.
  */
 const updateProgress = (label, num, total) => {
-    process.stdout.clearLine();
-    process.stdout.cursorTo(0);
+    readline.clearLine();
+    readline.cursorTo(0);
     process.stdout.write(`${label}: ${num}/${total} (${Math.round((num * 100) / total)}%)`);
 };
 
