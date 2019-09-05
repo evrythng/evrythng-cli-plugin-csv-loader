@@ -5,7 +5,7 @@ const mapper = require('../src/modules/mapper');
 const platform = require('../src/modules/platform');
 const util = require('../src/modules/util');
 
-const mockApi = () => nock('https://api.evrythng.com');
+const mockApi = apiUrl => nock(apiUrl || 'https://api.evrythng.com');
 
 describe('csv-loader', () => {
   describe('util.js', () => {
@@ -240,6 +240,7 @@ object3,the third object,270819`;
         .put('/products/bar', {
           scopes: {
             projects: ['+foo'],
+            users: ['+all'],
           },
         })
         .reply(200, [{ id: 'bar', name: 'foo' }]);
@@ -279,6 +280,7 @@ object3,the third object,270819`;
         .put('/products/bar', {
           scopes: {
             projects: ['+foo'],
+            users: ['+all'],
           },
         })
         .reply(200, [{ id: 'bar', name: 'foo' }]);
@@ -354,11 +356,18 @@ object3,the third object,270819`;
         .put('/products/bar', {
           scopes: {
             projects: ['+foo'],
+            users: ['+all'],
           },
         })
         .reply(200, [{ id: 'bar', name: 'foo' }]);
-      mockApi()
-        .post('/products/bar/redirector', { defaultRedirectUrl })
+      mockApi('https://tn.gg')
+        .get('/redirections?evrythngId=bar')
+        .reply(200, [{ shortId: '123' }]);
+      mockApi('https://tn.gg')
+        .put ('/redirections/123', { defaultRedirectUrl })
+        .reply(200, {});
+      mockApi('https://tn.gg')
+        .post('/redirections?evrythngId=bar', { defaultRedirectUrl })
         .reply(201, {});
 
       const resource = { name: 'foo' };
@@ -399,11 +408,18 @@ object3,the third object,270819`;
         .put('/products/bar', {
           scopes: {
             projects: ['+foo'],
+            users: ['+all'],
           },
         })
         .reply(200, [{ id: 'bar', name: 'foo' }]);
-      mockApi()
-        .post('/products/bar/redirector', { defaultRedirectUrl: url })
+      mockApi('https://tn.gg')
+        .get('/redirections?evrythngId=bar')
+        .reply(200, [{ shortId: '123' }]);
+      mockApi('https://tn.gg')
+        .put ('/redirections/123', { defaultRedirectUrl: url })
+        .reply(200, {});
+      mockApi('https://tn.gg')
+        .post('/redirections?evrythngId=bar', { defaultRedirectUrl: url })
         .reply(201, {});
 
       const resource = { name: 'foo', redirection: url };

@@ -30,7 +30,8 @@ const retryApi = f => retry(async () => {
     const obj = await f();
     return obj;
   } catch (e) {
-    throw new retry.AbortError(e.message || e.errors[0]);
+    console.log(e);
+    throw new retry.AbortError();
   }
 });
 
@@ -69,7 +70,12 @@ const upsertResource = async (resource, config, operator, project, outputSchema)
     const res = await retryApi(() => operator[type]().upsert(resource, finalUpdateKey));
 
     // Apply project scope
-    const payload = { scopes: { projects: [`+${project.id}`] } };
+    const payload = {
+      scopes: {
+        projects: [`+${project.id}`],
+        users: ['+all'],
+      },
+    };
     await retryApi(() => operator[type](res.id).update(payload));
 
     // Redirection?
